@@ -11,6 +11,7 @@ RUN rm -f /usr/share/nginx/html/nginx.conf /usr/share/nginx/html/docker-entrypoi
 
 # Default backend URL (override with Railway env var)
 ENV BACKEND_URL=http://backend:5000
+ENV PORT=80
 
 # Expose port
 EXPOSE 80
