@@ -22,7 +22,7 @@ services:
   # Node.js Backend
   backend:
     build:
-      context: ./backend/backend
+      context: ./backend
       dockerfile: Dockerfile
     container_name: ticket_backend
     restart: unless-stopped

@@ -11,6 +11,9 @@ RUN npm ci --only=production
 # Copy application code
 COPY . .
 
+# Remove .env if it exists (use Railway env vars instead)
+RUN rm -f .env
+
 # Expose port
 EXPOSE 5000
 

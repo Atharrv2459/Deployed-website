@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-dotenv.config();
+dotenv.config({ quiet: true });  // Don't warn if .env missing (use Railway env vars)
 
 import express from 'express';
 import cors from 'cors';
