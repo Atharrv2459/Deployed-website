@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pending Tickets - Manager</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- ========== SIDEBAR ========== -->
+        <nav class="sidebar">
+            <div class="sidebar-brand">
+                <h2>🎫 Ticket System</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html">📊 Dashboard</a></li>
+                <li><a href="pending-tickets.html" class="active">⏳ Pending Approval</a></li>
+                <li><a href="approved-tickets.html">✅ Approved Tickets</a></li>
+                <li><a href="rejected-tickets.html">❌ Rejected Tickets</a></li>
+                <li><a href="customers.html">👥 Manage Customers</a></li>
+                <li><a href="#" onclick="logout()">🚪 Logout</a></li>
+            </ul>
+        </nav>
+
+        <!-- ========== MAIN CONTENT ========== -->
+        <div class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <h1>Pending Approval</h1>
+                <div class="user-info">
+                    <span id="user-name">Loading...</span>
+                    <span class="role-badge">Manager</span>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <main class="content">
+                <!-- Alert Container -->
+                <div id="alert-container"></div>
+
+                <!-- Tickets Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Tickets Awaiting Approval</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container" id="tickets-container">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <p>&copy; 2024 Ticket Management System</p>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Approve/Reject Modal -->
+    <div class="modal-overlay" id="action-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modal-title">Approve/Reject Ticket</h3>
+                <button class="modal-close" onclick="closeModal('action-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="action-ticket-id">
+                <input type="hidden" id="action-type">
+
+                <div id="reject-reason-container" class="hidden">
+                    <div class="form-group">
+                        <label for="rejection-reason">Rejection Reason *</label>
+                        <textarea id="rejection-reason" placeholder="Please provide a reason for rejection..."></textarea>
+                    </div>
+                </div>
+
+                <p id="confirm-message"></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('action-modal')">Cancel</button>
+                <button class="btn btn-primary" id="confirm-btn" onclick="confirmAction()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="../../js/api.js"></script>
+    <script src="../../js/auth.js"></script>
+    <script src="../../js/utils.js"></script>
+
+    <script>
+        // =============================================
+        // PENDING TICKETS SCRIPT
+        // =============================================
+
+        // Check authentication
+        requireAuth();
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', async function() {
+            loadUserProfile();
+            loadPendingTickets();
+        });
+
+        // Load user profile
+        async function loadUserProfile() {
+            try {
+                const profile = await getCustomerProfile();
+                document.getElementById('user-name').textContent = profile.name || 'User';
+            } catch (error) {
+                console.error('Error loading profile:', error);
+            }
+        }
+
+        // Load pending tickets
+        async function loadPendingTickets() {
+            try {
+                const response = await getManagerPendingTickets();
+                const tickets = response.tickets || response || [];
+                renderTickets(tickets);
+            } catch (error) {
+                console.error('Error loading tickets:', error);
+                document.getElementById('tickets-container').innerHTML =
+                    '<p class="text-center">Error loading tickets.</p>';
+            }
+        }
+
+        // Render tickets table
+        function renderTickets(tickets) {
+            const container = document.getElementById('tickets-container');
+
+            if (!tickets || tickets.length === 0) {
+                container.innerHTML = '<p class="text-center">No pending tickets.</p>';
+                return;
+            }
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Subject</th>
+                            <th>Requester</th>
+                            <th>Category</th>
+                            <th>Priority</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            tickets.forEach(ticket => {
+                html += `
+                    <tr>
+                        <td>#${ticket.id}</td>
+                        <td>${escapeHtml(ticket.subject)}</td>
+                        <td>${escapeHtml(ticket.requester)}</td>
+                        <td>${escapeHtml(ticket.category)}</td>
+                        <td><span class="badge ${getPriorityClass(ticket.priority)}">L${ticket.priority}</span></td>
+                        <td>${formatDate(ticket.created_at)}</td>
+                        <td>
+                            <button class="btn btn-sm btn-success" onclick="openApproveModal(${ticket.id})">Approve</button>
+                            <button class="btn btn-sm btn-danger" onclick="openRejectModal(${ticket.id})">Reject</button>
+                            <a href="view-ticket.html?id=${ticket.id}" class="btn btn-sm btn-secondary">View</a>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        // Open approve modal
+        function openApproveModal(ticketId) {
+            document.getElementById('action-ticket-id').value = ticketId;
+            document.getElementById('action-type').value = 'Approved';
+            document.getElementById('modal-title').textContent = 'Approve Ticket';
+            document.getElementById('confirm-message').textContent = 'Are you sure you want to approve this ticket?';
+            document.getElementById('reject-reason-container').classList.add('hidden');
+            document.getElementById('confirm-btn').className = 'btn btn-success';
+            document.getElementById('confirm-btn').textContent = 'Approve';
+            openModal('action-modal');
+        }
+
+        // Open reject modal
+        function openRejectModal(ticketId) {
+            document.getElementById('action-ticket-id').value = ticketId;
+            document.getElementById('action-type').value = 'Rejected';
+            document.getElementById('modal-title').textContent = 'Reject Ticket';
+            document.getElementById('confirm-message').textContent = 'Please provide a reason for rejection:';
+            document.getElementById('reject-reason-container').classList.remove('hidden');
+            document.getElementById('rejection-reason').value = '';
+            document.getElementById('confirm-btn').className = 'btn btn-danger';
+            document.getElementById('confirm-btn').textContent = 'Reject';
+            openModal('action-modal');
+        }
+
+        // Confirm action
+        async function confirmAction() {
+            const ticketId = document.getElementById('action-ticket-id').value;
+            const action = document.getElementById('action-type').value;
+            const reason = document.getElementById('rejection-reason').value;
+
+            // Validate rejection reason
+            if (action === 'Rejected' && !reason.trim()) {
+                alert('Please provide a rejection reason.');
+                return;
+            }
+
+            try {
+                await approveRejectTicket(ticketId, action, reason);
+                closeModal('action-modal');
+                showAlert(`Ticket ${action.toLowerCase()} successfully!`, 'success');
+                loadPendingTickets(); // Refresh list
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Manager</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- ========== SIDEBAR ========== -->
+        <nav class="sidebar">
+            <div class="sidebar-brand">
+                <h2>🎫 Ticket System</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html" class="active">📊 Dashboard</a></li>
+                <li><a href="pending-tickets.html">⏳ Pending Approval</a></li>
+                <li><a href="approved-tickets.html">✅ Approved Tickets</a></li>
+                <li><a href="rejected-tickets.html">❌ Rejected Tickets</a></li>
+                <li><a href="customers.html">👥 Manage Customers</a></li>
+                <li><a href="#" onclick="logout()">🚪 Logout</a></li>
+            </ul>
+        </nav>
+
+        <!-- ========== MAIN CONTENT ========== -->
+        <div class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <h1>Manager Dashboard</h1>
+                <div class="user-info">
+                    <span id="user-name">Loading...</span>
+                    <span class="role-badge">Manager</span>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <main class="content">
+                <!-- Alert Container -->
+                <div id="alert-container"></div>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card primary">
+                        <div class="stat-title">Pending Approval</div>
+                        <div class="stat-value" id="pending-count">-</div>
+                    </div>
+                    <div class="stat-card success">
+                        <div class="stat-title">Approved</div>
+                        <div class="stat-value" id="approved-count">-</div>
+                    </div>
+                    <div class="stat-card danger">
+                        <div class="stat-title">Rejected</div>
+                        <div class="stat-value" id="rejected-count">-</div>
+                    </div>
+                    <div class="stat-card warning">
+                        <div class="stat-title">Total Customers</div>
+                        <div class="stat-value" id="customers-count">-</div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Quick Actions</h3>
+                    </div>
+                    <div class="card-body">
+                        <a href="pending-tickets.html" class="btn btn-primary">Review Pending Tickets</a>
+                        <a href="customers.html" class="btn btn-secondary">View Customers</a>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <p>&copy; 2024 Ticket Management System</p>
+            </footer>
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="../../js/api.js"></script>
+    <script src="../../js/auth.js"></script>
+    <script src="../../js/utils.js"></script>
+
+    <script>
+        // =============================================
+        // MANAGER DASHBOARD SCRIPT
+        // =============================================
+
+        // Check authentication
+        requireAuth();
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', async function() {
+            loadUserProfile();
+            loadDashboardData();
+        });
+
+        // Load user profile
+        async function loadUserProfile() {
+            try {
+                const profile = await getCustomerProfile();
+                document.getElementById('user-name').textContent = profile.name || 'User';
+            } catch (error) {
+                console.error('Error loading profile:', error);
+            }
+        }
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                // Load counts in parallel
+                const [pending, approved, rejected, customers] = await Promise.all([
+                    getManagerPendingTickets().catch(() => ({ tickets: [] })),
+                    getManagerApprovedTickets().catch(() => ({ tickets: [] })),
+                    getManagerRejectedTickets().catch(() => ({ tickets: [] })),
+                    getManagerCustomers().catch(() => ({ customers: [] }))
+                ]);
+
+                document.getElementById('pending-count').textContent =
+                    (pending.tickets || pending || []).length;
+                document.getElementById('approved-count').textContent =
+                    (approved.tickets || approved || []).length;
+                document.getElementById('rejected-count').textContent =
+                    (rejected.tickets || rejected || []).length;
+                document.getElementById('customers-count').textContent =
+                    (customers.customers || customers || []).length;
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+    </script>
+</body>
+</html>

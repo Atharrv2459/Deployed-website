@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rejected Tickets - Manager</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- ========== SIDEBAR ========== -->
+        <nav class="sidebar">
+            <div class="sidebar-brand">
+                <h2>🎫 Ticket System</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html">📊 Dashboard</a></li>
+                <li><a href="pending-tickets.html">⏳ Pending Approval</a></li>
+                <li><a href="approved-tickets.html">✅ Approved Tickets</a></li>
+                <li><a href="rejected-tickets.html" class="active">❌ Rejected Tickets</a></li>
+                <li><a href="customers.html">👥 Manage Customers</a></li>
+                <li><a href="#" onclick="logout()">🚪 Logout</a></li>
+            </ul>
+        </nav>
+
+        <!-- ========== MAIN CONTENT ========== -->
+        <div class="main-content">
+            <header class="header">
+                <h1>Rejected Tickets</h1>
+                <div class="user-info">
+                    <span id="user-name">Loading...</span>
+                    <span class="role-badge">Manager</span>
+                </div>
+            </header>
+
+            <main class="content">
+                <div id="alert-container"></div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Rejected Ticket List</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container" id="tickets-container">
+                            <div class="loading"><div class="spinner"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <footer class="footer">
+                <p>&copy; 2024 Ticket Management System</p>
+            </footer>
+        </div>
+    </div>
+
+    <script src="../../js/api.js"></script>
+    <script src="../../js/auth.js"></script>
+    <script src="../../js/utils.js"></script>
+
+    <script>
+        requireAuth();
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            loadUserProfile();
+            loadRejectedTickets();
+        });
+
+        async function loadUserProfile() {
+            try {
+                const profile = await getCustomerProfile();
+                document.getElementById('user-name').textContent = profile.name || 'User';
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function loadRejectedTickets() {
+            try {
+                const response = await getManagerRejectedTickets();
+                const tickets = response.tickets || response || [];
+                renderTickets(tickets);
+            } catch (error) {
+                document.getElementById('tickets-container').innerHTML =
+                    '<p class="text-center">Error loading tickets.</p>';
+            }
+        }
+
+        function renderTickets(tickets) {
+            const container = document.getElementById('tickets-container');
+
+            if (!tickets || tickets.length === 0) {
+                container.innerHTML = '<p class="text-center">No rejected tickets.</p>';
+                return;
+            }
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Subject</th>
+                            <th>Requester</th>
+                            <th>Priority</th>
+                            <th>Rejection Reason</th>
+                            <th>Rejected At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            tickets.forEach(ticket => {
+                html += `
+                    <tr>
+                        <td>#${ticket.id}</td>
+                        <td>${escapeHtml(ticket.subject)}</td>
+                        <td>${escapeHtml(ticket.requester)}</td>
+                        <td><span class="badge ${getPriorityClass(ticket.priority)}">L${ticket.priority}</span></td>
+                        <td>${escapeHtml(ticket.rejection_reason) || '-'}</td>
+                        <td>${formatDate(ticket.approved_at)}</td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+    </script>
+</body>
+</html>

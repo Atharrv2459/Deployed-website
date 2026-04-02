@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Tickets - Agent</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- ========== SIDEBAR ========== -->
+        <nav class="sidebar">
+            <div class="sidebar-brand">
+                <h2>🎫 Ticket System</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html">📊 Dashboard</a></li>
+                <li><a href="unassigned-tickets.html">📥 Unassigned Tickets</a></li>
+                <li><a href="my-tickets.html" class="active">📋 My Tickets</a></li>
+                <li><a href="#" onclick="logout()">🚪 Logout</a></li>
+            </ul>
+        </nav>
+
+        <!-- ========== MAIN CONTENT ========== -->
+        <div class="main-content">
+            <header class="header">
+                <h1>My Assigned Tickets</h1>
+                <div class="user-info">
+                    <span id="user-name">Loading...</span>
+                    <span class="role-badge">Agent</span>
+                </div>
+            </header>
+
+            <main class="content">
+                <div id="alert-container"></div>
+
+                <!-- Filters -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Filter Tickets</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="filters">
+                            <div class="form-group">
+                                <label for="filter-status">Status</label>
+                                <select id="filter-status">
+                                    <option value="">All Status</option>
+                                    <option value="Open">Open</option>
+                                    <option value="Assigned">Assigned</option>
+                                    <option value="Requirements">Requirements</option>
+                                    <option value="Development">Development</option>
+                                    <option value="Internal Testing">Internal Testing</option>
+                                    <option value="UAT">UAT</option>
+                                    <option value="Resolved">Resolved</option>
+                                    <option value="Closed">Closed</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-primary" onclick="applyFilters()">Apply</button>
+                                <button class="btn btn-secondary" onclick="clearFilters()">Clear</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Ticket List</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container" id="tickets-container">
+                            <div class="loading"><div class="spinner"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <footer class="footer">
+                <p>&copy; 2024 Ticket Management System</p>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Comment Modal -->
+    <div class="modal-overlay" id="comment-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Add Comment</h3>
+                <button class="modal-close" onclick="closeModal('comment-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="comment-ticket-id">
+                <div class="form-group">
+                    <label for="comment-subject">Subject</label>
+                    <input type="text" id="comment-subject" required>
+                </div>
+                <div class="form-group">
+                    <label for="comment-text">Comment</label>
+                    <textarea id="comment-text" required></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('comment-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="submitComment()">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/api.js"></script>
+    <script src="../../js/auth.js"></script>
+    <script src="../../js/utils.js"></script>
+
+    <script>
+        requireAuth();
+
+        let allTickets = [];
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            loadUserProfile();
+            loadMyTickets();
+        });
+
+        async function loadUserProfile() {
+            try {
+                const profile = await getCustomerProfile();
+                document.getElementById('user-name').textContent = profile.name || 'User';
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function loadMyTickets() {
+            try {
+                const response = await getAgentAssignedTickets();
+                allTickets = response.tickets || response || [];
+                renderTickets(allTickets);
+            } catch (error) {
+                document.getElementById('tickets-container').innerHTML =
+                    '<p class="text-center">Error loading tickets.</p>';
+            }
+        }
+
+        function renderTickets(tickets) {
+            const container = document.getElementById('tickets-container');
+
+            if (!tickets || tickets.length === 0) {
+                container.innerHTML = '<p class="text-center">No tickets assigned to you.</p>';
+                return;
+            }
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Subject</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Age</th>
+                            <th>Waiting</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            tickets.forEach(ticket => {
+                html += `
+                    <tr>
+                        <td>#${ticket.id}</td>
+                        <td>${escapeHtml(ticket.subject)}</td>
+                        <td><span class="badge ${getPriorityClass(ticket.priority)}">L${ticket.priority}</span></td>
+                        <td><span class="badge ${getStatusClass(ticket.status)}">${ticket.status}</span></td>
+                        <td>${calculateTicketAge(ticket.created_at)}</td>
+                        <td>${ticket.waiting_for_customer ? '<span class="badge badge-warning">Yes</span>' : 'No'}</td>
+                        <td>
+                            <a href="view-ticket.html?id=${ticket.id}" class="btn btn-sm btn-primary">View</a>
+                            <a href="edit-ticket.html?id=${ticket.id}" class="btn btn-sm btn-warning">Edit</a>
+                            <button class="btn btn-sm btn-secondary" onclick="openCommentModal(${ticket.id})">Comment</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function applyFilters() {
+            const statusFilter = document.getElementById('filter-status').value;
+            let filtered = allTickets;
+
+            if (statusFilter) {
+                filtered = filtered.filter(t => t.status === statusFilter);
+            }
+
+            renderTickets(filtered);
+        }
+
+        function clearFilters() {
+            document.getElementById('filter-status').value = '';
+            renderTickets(allTickets);
+        }
+
+        function openCommentModal(ticketId) {
+            document.getElementById('comment-ticket-id').value = ticketId;
+            document.getElementById('comment-subject').value = '';
+            document.getElementById('comment-text').value = '';
+            openModal('comment-modal');
+        }
+
+        async function submitComment() {
+            const ticketId = document.getElementById('comment-ticket-id').value;
+            const subject = document.getElementById('comment-subject').value;
+            const text = document.getElementById('comment-text').value;
+
+            if (!subject || !text) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            try {
+                await addAgentComment(ticketId, { subject, text });
+                closeModal('comment-modal');
+                showAlert('Comment added successfully!', 'success');
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

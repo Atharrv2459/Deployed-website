@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Ticket - Manager</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- ========== SIDEBAR ========== -->
+        <nav class="sidebar">
+            <div class="sidebar-brand">
+                <h2>🎫 Ticket System</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html">📊 Dashboard</a></li>
+                <li><a href="pending-tickets.html">⏳ Pending Approval</a></li>
+                <li><a href="approved-tickets.html">✅ Approved Tickets</a></li>
+                <li><a href="rejected-tickets.html">❌ Rejected Tickets</a></li>
+                <li><a href="customers.html">👥 Manage Customers</a></li>
+                <li><a href="#" onclick="logout()">🚪 Logout</a></li>
+            </ul>
+        </nav>
+
+        <!-- ========== MAIN CONTENT ========== -->
+        <div class="main-content">
+            <header class="header">
+                <h1>View Ticket</h1>
+                <div class="user-info">
+                    <span id="user-name">Loading...</span>
+                    <span class="role-badge">Manager</span>
+                </div>
+            </header>
+
+            <main class="content">
+                <div id="alert-container"></div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Ticket #<span id="ticket-id">-</span>: <span id="ticket-subject">Loading...</span></h3>
+                    </div>
+                    <div class="card-body" id="ticket-container">
+                        <div class="loading"><div class="spinner"></div></div>
+                    </div>
+                </div>
+
+                <div class="mt-20">
+                    <a href="javascript:history.back()" class="btn btn-secondary">Back</a>
+                </div>
+            </main>
+
+            <footer class="footer">
+                <p>&copy; 2024 Ticket Management System</p>
+            </footer>
+        </div>
+    </div>
+
+    <script src="../../js/api.js"></script>
+    <script src="../../js/auth.js"></script>
+    <script src="../../js/utils.js"></script>
+
+    <script>
+        requireAuth();
+
+        const ticketId = getUrlParam('id');
+        if (!ticketId) window.location.href = 'dashboard.html';
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            loadUserProfile();
+            loadTicketDetails();
+        });
+
+        async function loadUserProfile() {
+            try {
+                const profile = await getCustomerProfile();
+                document.getElementById('user-name').textContent = profile.name || 'User';
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function loadTicketDetails() {
+            try {
+                const response = await getManagerTicket(ticketId);
+                const ticket = response.ticket || response;
+
+                document.getElementById('ticket-id').textContent = ticket.id;
+                document.getElementById('ticket-subject').textContent = ticket.subject;
+
+                document.getElementById('ticket-container').innerHTML = `
+                    <div class="ticket-details">
+                        <div class="detail-item">
+                            <label>Status</label>
+                            <div class="value"><span class="badge ${getStatusClass(ticket.status)}">${ticket.status}</span></div>
+                        </div>
+                        <div class="detail-item">
+                            <label>Approval Status</label>
+                            <div class="value"><span class="badge ${getStatusClass(ticket.approval_status)}">${ticket.approval_status}</span></div>
+                        </div>
+                        <div class="detail-item">
+                            <label>Priority</label>
+                            <div class="value"><span class="badge ${getPriorityClass(ticket.priority)}">${getPriorityLabel(ticket.priority)}</span></div>
+                        </div>
+                        <div class="detail-item">
+                            <label>Category</label>
+                            <div class="value">${escapeHtml(ticket.category)} - ${escapeHtml(ticket.sub_category)}</div>
+                        </div>
+                        <div class="detail-item">
+                            <label>Requester</label>
+                            <div class="value">${escapeHtml(ticket.requester)}</div>
+                        </div>
+                        <div class="detail-item">
+                            <label>Contact Email</label>
+                            <div class="value">${escapeHtml(ticket.contact_email)}</div>
+                        </div>
+                        <div class="detail-item">
+                            <label>Created At</label>
+                            <div class="value">${formatDateTime(ticket.created_at)}</div>
+                        </div>
+                        <div class="detail-item">
+                            <label>SLA Hours</label>
+                            <div class="value">${ticket.sla_hours} hours</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px;">
+                        <h4>Description</h4>
+                        <p style="background: #f8f9fc; padding: 15px; border-radius: 5px;">
+                            ${escapeHtml(ticket.description) || 'No description provided.'}
+                        </p>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('ticket-container').innerHTML =
+                    '<p class="text-center">Error loading ticket details.</p>';
+            }
+        }
+    </script>
+</body>
+</html>

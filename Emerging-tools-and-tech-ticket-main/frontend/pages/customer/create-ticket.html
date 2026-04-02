@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Ticket - Customer</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- ========== SIDEBAR ========== -->
+        <nav class="sidebar">
+            <div class="sidebar-brand">
+                <h2>🎫 Ticket System</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html">📊 Dashboard</a></li>
+                <li><a href="tickets.html">📋 My Tickets</a></li>
+                <li><a href="create-ticket.html" class="active">➕ Create Ticket</a></li>
+                <li><a href="profile.html">👤 Profile</a></li>
+                <li><a href="#" onclick="logout()">🚪 Logout</a></li>
+            </ul>
+        </nav>
+
+        <!-- ========== MAIN CONTENT ========== -->
+        <div class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <h1>Create New Ticket</h1>
+                <div class="user-info">
+                    <span id="user-name">Loading...</span>
+                    <span class="role-badge">Customer</span>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <main class="content">
+                <!-- Alert Container -->
+                <div id="alert-container"></div>
+
+                <!-- Create Ticket Form -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Ticket Details</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="ticket-form">
+                            <!-- Contact Information -->
+                            <h4 style="margin-bottom: 15px; color: #4e73df;">Contact Information</h4>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="requester">Requester Name *</label>
+                                    <input type="text" id="requester" name="requester" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="contact_email">Contact Email *</label>
+                                    <input type="email" id="contact_email" name="contact_email" required>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="contact_phone">Contact Phone</label>
+                                    <input type="tel" id="contact_phone" name="contact_phone">
+                                </div>
+                                <div class="form-group">
+                                    <label for="account_name">Account Name</label>
+                                    <input type="text" id="account_name" name="account_name" readonly>
+                                </div>
+                            </div>
+
+                            <hr style="margin: 20px 0;">
+
+                            <!-- Ticket Information -->
+                            <h4 style="margin-bottom: 15px; color: #4e73df;">Ticket Information</h4>
+
+                            <div class="form-group">
+                                <label for="subject">Subject *</label>
+                                <input type="text" id="subject" name="subject" placeholder="Brief description of the issue" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="description">Description *</label>
+                                <textarea id="description" name="description" placeholder="Detailed description of the issue..." required></textarea>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="category">Category *</label>
+                                    <select id="category" name="category" required onchange="updateSubcategories()">
+                                        <option value="">Select Category</option>
+                                        <option value="SAP">SAP</option>
+                                        <option value="Product">Product</option>
+                                        <option value="Integration">Integration</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="sub_category">Sub-Category *</label>
+                                    <select id="sub_category" name="sub_category" required>
+                                        <option value="">Select Sub-Category</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="type">Type *</label>
+                                    <select id="type" name="type" required>
+                                        <option value="">Select Type</option>
+                                        <option value="Incident">Incident</option>
+                                        <option value="Query">Query</option>
+                                        <option value="Problem">Problem</option>
+                                        <option value="Change">Change Request</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="environment">Environment *</label>
+                                    <select id="environment" name="environment" required>
+                                        <option value="">Select Environment</option>
+                                        <option value="PRD">Production (PRD)</option>
+                                        <option value="QA">Quality Assurance (QA)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="priority">Priority *</label>
+                                    <select id="priority" name="priority" required onchange="updateSLA()">
+                                        <option value="">Select Priority</option>
+                                        <option value="1">L1 - Critical (4 hrs SLA)</option>
+                                        <option value="2">L2 - High (8 hrs SLA)</option>
+                                        <option value="3">L3 - Medium (24 hrs SLA)</option>
+                                        <option value="4">L4 - Low (48 hrs SLA)</option>
+                                        <option value="5">L5 - Minimal (72 hrs SLA)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="sla_hours">SLA (hours)</label>
+                                    <input type="number" id="sla_hours" name="sla_hours" readonly>
+                                </div>
+                            </div>
+
+                            <!-- File attachments disabled - AWS S3 removed -->
+                            <!--
+                            <div class="form-group">
+                                <label for="attachments">Attachments (Max 20KB per file)</label>
+                                <input type="file" id="attachments" name="attachments" multiple>
+                                <small style="color: #666;">You can select multiple files</small>
+                            </div>
+                            -->
+
+                            <div class="mt-20">
+                                <button type="submit" class="btn btn-success">Create Ticket</button>
+                                <a href="tickets.html" class="btn btn-secondary">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <p>&copy; 2024 Ticket Management System</p>
+            </footer>
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="../../js/api.js"></script>
+    <script src="../../js/auth.js"></script>
+    <script src="../../js/utils.js"></script>
+
+    <script>
+        // =============================================
+        // CREATE TICKET SCRIPT
+        // =============================================
+
+        // Check authentication
+        requireAuth();
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', async function() {
+            loadUserProfile();
+        });
+
+        // Load user profile and pre-fill form
+        async function loadUserProfile() {
+            try {
+                const profile = await getCustomerProfile();
+                document.getElementById('user-name').textContent = profile.name || 'User';
+
+                // Pre-fill form with user data
+                document.getElementById('requester').value = profile.name || '';
+                document.getElementById('contact_email').value = profile.email || '';
+                document.getElementById('contact_phone').value = profile.phone || '';
+                document.getElementById('account_name').value = profile.account_name || '';
+            } catch (error) {
+                console.error('Error loading profile:', error);
+            }
+        }
+
+        // Update subcategories when category changes
+        function updateSubcategories() {
+            const category = document.getElementById('category').value;
+            const subCategorySelect = document.getElementById('sub_category');
+
+            // Clear existing options
+            subCategorySelect.innerHTML = '<option value="">Select Sub-Category</option>';
+
+            // Get subcategories for selected category
+            const subcategories = getSubcategories(category);
+
+            // Add new options
+            subcategories.forEach(sub => {
+                const option = document.createElement('option');
+                option.value = sub;
+                option.textContent = sub;
+                subCategorySelect.appendChild(option);
+            });
+        }
+
+        // Update SLA when priority changes
+        function updateSLA() {
+            const priority = document.getElementById('priority').value;
+            const slaHours = getSlaHours(parseInt(priority));
+            document.getElementById('sla_hours').value = slaHours || '';
+        }
+
+        // Handle form submission
+        document.getElementById('ticket-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            // Create JSON object for ticket data
+            const ticketData = {
+                requester: document.getElementById('requester').value,
+                contact_email: document.getElementById('contact_email').value,
+                contact_phone: document.getElementById('contact_phone').value,
+                account_name: document.getElementById('account_name').value,
+                subject: document.getElementById('subject').value,
+                description: document.getElementById('description').value,
+                category: document.getElementById('category').value,
+                sub_category: document.getElementById('sub_category').value,
+                type: document.getElementById('type').value,
+                environment: document.getElementById('environment').value,
+                priority: document.getElementById('priority').value,
+                sla_hours: document.getElementById('sla_hours').value
+            };
+
+            try {
+                await createCustomerTicket(ticketData);
+                showAlert('Ticket created successfully!', 'success');
+
+                // Redirect to tickets list after 2 seconds
+                setTimeout(function() {
+                    window.location.href = 'tickets.html';
+                }, 2000);
+            } catch (error) {
+                showAlert('Error creating ticket: ' + error.message, 'danger');
+            }
+        });
+    </script>
+</body>
+</html>

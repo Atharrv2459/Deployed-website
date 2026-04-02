@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Ticket Management System</title>
+
+    <!-- Our simple CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Login Container -->
+    <div class="login-container">
+        <div class="login-box">
+            <!-- Logo/Icon -->
+
+            <h1>Ticket Management</h1>
+
+            <!-- Alert container for error messages -->
+            <div id="alert-container"></div>
+
+            <!-- Login Form -->
+            <form id="login-form">
+                <!-- Email Field -->
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Enter your email"
+                        required
+                    >
+                </div>
+
+                <!-- Password Field -->
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Enter your password"
+                        required
+                    >
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary btn-block" id="login-btn">
+                    Login
+                </button>
+            </form>
+
+            <!-- Clear Session Link -->
+            <p style="text-align: center; margin-top: 15px;">
+                <a href="#" onclick="clearSession(); return false;" style="color: #666; font-size: 14px;">Clear Session & Reload</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/utils.js"></script>
+
+    <script>
+        // =============================================
+        // LOGIN PAGE SCRIPT
+        // Simple and easy to understand!
+        // =============================================
+
+        // Function to clear session data
+        function clearSession() {
+            localStorage.clear();
+            showAlert('Session cleared! Page will reload...', 'success');
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        }
+
+        // If user is already logged in, redirect to dashboard
+        if (isLoggedIn()) {
+            window.location.href = getDashboardUrl();
+        }
+
+        // Get form elements
+        const loginForm = document.getElementById('login-form');
+        const loginBtn = document.getElementById('login-btn');
+
+        // Handle form submission
+        loginForm.addEventListener('submit', async function(event) {
+            // Prevent page reload
+            event.preventDefault();
+
+            // Get values from form
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Show loading state
+            loginBtn.textContent = 'Logging in...';
+            loginBtn.disabled = true;
+
+            try {
+                // Call the login API
+                const response = await loginUser(email, password);
+
+                // If successful, save user data
+                saveUserData({
+                    token: response.token,
+                    role: response.user.role,
+                    agent_type: response.user.agent_type,
+                    customer_type: response.user.customer_type
+                });
+
+                // Show success message
+                showAlert('Login successful! Redirecting...', 'success');
+
+                // Redirect to appropriate dashboard
+                setTimeout(function() {
+                    window.location.href = getDashboardUrl();
+                }, 1000);
+
+            } catch (error) {
+                // Show error message
+                showAlert(error.message || 'Login failed. Please check your credentials.', 'danger');
+
+                // Reset button
+                loginBtn.textContent = 'Login';
+                loginBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

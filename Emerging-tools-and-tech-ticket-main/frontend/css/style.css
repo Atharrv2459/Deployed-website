@@ -1,0 +1,675 @@
+/* ===========================================
+   SIMPLE TICKET MANAGEMENT SYSTEM - CSS
+   Easy to understand CSS for beginners
+   =========================================== */
+
+/* ---------- RESET & BASE STYLES ---------- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background-color: #f4f6f9;
+    color: #333;
+    line-height: 1.6;
+}
+
+a {
+    text-decoration: none;
+    color: #4e73df;
+}
+
+a:hover {
+    color: #2e59d9;
+}
+
+/* ---------- LAYOUT STRUCTURE ---------- */
+
+/* Main container that holds sidebar and content */
+.app-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar on the left */
+.sidebar {
+    width: 250px;
+    background: linear-gradient(180deg, #4e73df 0%, #224abe 100%);
+    color: white;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.sidebar-brand {
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.sidebar-brand h2 {
+    font-size: 1.2rem;
+    color: white;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 20px 0;
+}
+
+.sidebar-menu li {
+    margin: 5px 0;
+}
+
+.sidebar-menu a {
+    display: block;
+    padding: 12px 20px;
+    color: rgba(255, 255, 255, 0.8);
+    transition: all 0.3s;
+}
+
+.sidebar-menu a:hover,
+.sidebar-menu a.active {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.sidebar-menu a i {
+    margin-right: 10px;
+    width: 20px;
+}
+
+/* Main content area */
+.main-content {
+    flex: 1;
+    margin-left: 250px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header/Navbar */
+.header {
+    background: white;
+    padding: 15px 30px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header h1 {
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-info span {
+    color: #666;
+}
+
+.user-info .role-badge {
+    background: #4e73df;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+}
+
+/* Content area */
+.content {
+    padding: 30px;
+    flex: 1;
+}
+
+/* Footer */
+.footer {
+    background: white;
+    padding: 15px 30px;
+    text-align: center;
+    color: #666;
+    border-top: 1px solid #e3e6f0;
+}
+
+/* ---------- LOGIN PAGE STYLES ---------- */
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+}
+
+.login-box {
+    background: white;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 400px;
+}
+
+.login-box h1 {
+    text-align: center;
+    color: #4e73df;
+    margin-bottom: 30px;
+}
+
+.login-box .logo {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 3rem;
+    color: #4e73df;
+}
+
+/* ---------- FORM STYLES ---------- */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #4e73df;
+}
+
+.form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+/* ---------- BUTTONS ---------- */
+.btn {
+    display: inline-block;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background: #4e73df;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #2e59d9;
+}
+
+.btn-success {
+    background: #1cc88a;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #17a673;
+}
+
+.btn-danger {
+    background: #e74a3b;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #c0392b;
+}
+
+.btn-warning {
+    background: #f6c23e;
+    color: #333;
+}
+
+.btn-warning:hover {
+    background: #e0a800;
+}
+
+.btn-secondary {
+    background: #858796;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #6c757d;
+}
+
+.btn-block {
+    width: 100%;
+}
+
+.btn-sm {
+    padding: 8px 16px;
+    font-size: 0.875rem;
+}
+
+/* ---------- CARDS ---------- */
+.card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.card-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #e3e6f0;
+    background: #f8f9fc;
+    border-radius: 10px 10px 0 0;
+}
+
+.card-header h3 {
+    margin: 0;
+    color: #4e73df;
+    font-size: 1.1rem;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+/* Dashboard stat cards */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid;
+}
+
+.stat-card.primary {
+    border-left-color: #4e73df;
+}
+
+.stat-card.success {
+    border-left-color: #1cc88a;
+}
+
+.stat-card.warning {
+    border-left-color: #f6c23e;
+}
+
+.stat-card.danger {
+    border-left-color: #e74a3b;
+}
+
+.stat-card .stat-title {
+    color: #666;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.stat-card .stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+}
+
+/* ---------- TABLES ---------- */
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+th {
+    background: #f8f9fc;
+    font-weight: 600;
+    color: #333;
+}
+
+tr:hover {
+    background: #f8f9fc;
+}
+
+/* ---------- BADGES/STATUS ---------- */
+.badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-primary {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.badge-success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.badge-warning {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.badge-danger {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.badge-info {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.badge-secondary {
+    background: #e2e3e5;
+    color: #383d41;
+}
+
+/* Priority badges */
+.priority-1 {
+    background: #e74a3b;
+    color: white;
+}
+
+.priority-2 {
+    background: #f6c23e;
+    color: #333;
+}
+
+.priority-3 {
+    background: #36b9cc;
+    color: white;
+}
+
+.priority-4 {
+    background: #1cc88a;
+    color: white;
+}
+
+.priority-5 {
+    background: #858796;
+    color: white;
+}
+
+/* ---------- ALERTS / MESSAGES ---------- */
+.alert {
+    padding: 15px 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.alert-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-danger {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.alert-warning {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+
+.alert-info {
+    background: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+/* ---------- MODAL ---------- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal {
+    background: white;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    padding: 20px;
+    border-bottom: 1px solid #e3e6f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-footer {
+    padding: 20px;
+    border-top: 1px solid #e3e6f0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* ---------- FILTERS ---------- */
+.filters {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+.filters .form-group {
+    margin-bottom: 0;
+}
+
+/* ---------- COMMENTS SECTION ---------- */
+.comments-section {
+    margin-top: 30px;
+}
+
+.comment {
+    padding: 15px;
+    border: 1px solid #e3e6f0;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    background: #f8f9fc;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.comment-author {
+    font-weight: 600;
+    color: #4e73df;
+}
+
+.comment-date {
+    color: #666;
+    font-size: 0.85rem;
+}
+
+.comment-body {
+    color: #333;
+}
+
+/* ---------- TICKET DETAILS ---------- */
+.ticket-details {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.detail-item {
+    padding: 15px;
+    background: #f8f9fc;
+    border-radius: 5px;
+}
+
+.detail-item label {
+    display: block;
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.detail-item .value {
+    font-weight: 600;
+    color: #333;
+}
+
+/* ---------- LOADING SPINNER ---------- */
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 50px;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #e3e6f0;
+    border-top-color: #4e73df;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ---------- UTILITY CLASSES ---------- */
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.mt-20 {
+    margin-top: 20px;
+}
+
+.mb-20 {
+    margin-bottom: 20px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ---------- RESPONSIVE DESIGN ---------- */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 70px;
+    }
+
+    .sidebar-brand h2,
+    .sidebar-menu a span {
+        display: none;
+    }
+
+    .main-content {
+        margin-left: 70px;
+    }
+
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .ticket-details {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}

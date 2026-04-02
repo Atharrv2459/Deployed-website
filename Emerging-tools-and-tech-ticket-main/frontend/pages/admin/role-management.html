@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Role Management - Admin</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- ========== SIDEBAR ========== -->
+        <nav class="sidebar">
+            <div class="sidebar-brand">
+                <h2>🎫 Ticket System</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html">📊 Dashboard</a></li>
+                <li><a href="role-management.html" class="active">👤 Role Management</a></li>
+                <li><a href="#" onclick="logout()">🚪 Logout</a></li>
+            </ul>
+        </nav>
+
+        <!-- ========== MAIN CONTENT ========== -->
+        <div class="main-content">
+            <header class="header">
+                <h1>Role Management</h1>
+                <div class="user-info">
+                    <span id="user-name">Loading...</span>
+                    <span class="role-badge">Admin</span>
+                </div>
+            </header>
+
+            <main class="content">
+                <div id="alert-container"></div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Add New User</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="add-user-form">
+                            <!-- Basic Information -->
+                            <h4 style="margin-bottom: 15px; color: #4e73df;">Basic Information</h4>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="name">Full Name *</label>
+                                    <input type="text" id="name" name="name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">Email Address *</label>
+                                    <input type="email" id="email" name="email" required>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="phone">Phone Number</label>
+                                    <input type="tel" id="phone" name="phone">
+                                </div>
+                                <div class="form-group">
+                                    <label for="organization">Organization *</label>
+                                    <input type="text" id="organization" name="organization" required>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="department">Department</label>
+                                    <input type="text" id="department" name="department">
+                                </div>
+                                <div class="form-group">
+                                    <label for="account_name">Account Name *</label>
+                                    <input type="text" id="account_name" name="account_name" required>
+                                </div>
+                            </div>
+
+                            <hr style="margin: 20px 0;">
+
+                            <!-- Role Information -->
+                            <h4 style="margin-bottom: 15px; color: #4e73df;">Role Information</h4>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="role">Role *</label>
+                                    <select id="role" name="role" required onchange="updateSubRoles()">
+                                        <option value="">Select Role</option>
+                                        <option value="customer">Customer</option>
+                                        <option value="agent">Agent</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" id="sub-role-container">
+                                    <label for="sub_role">Sub-Role *</label>
+                                    <select id="sub_role" name="sub_role" onchange="handleSubRoleChange()">
+                                        <option value="">Select Sub-Role</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Manager Email Field (shown only for normal customers) -->
+                            <div id="manager-email-container" class="form-group hidden">
+                                <label for="manager_email">Manager Email *</label>
+                                <input type="email" id="manager_email" name="manager_email" placeholder="Enter manager's email address">
+                                <small style="color: #666;">The manager must be already created in the system</small>
+                            </div>
+
+                            <div class="mt-20">
+                                <button type="submit" class="btn btn-success">Create User</button>
+                                <button type="reset" class="btn btn-secondary">Clear Form</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Info Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Information</h3>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Note:</strong> When you create a new user, a temporary password will be generated and sent to their email address.</p>
+
+                        <h4 style="margin-top: 20px;">Available Roles:</h4>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li><strong>Customer</strong> - Can create and view their own tickets
+                                <ul style="margin-left: 20px;">
+                                    <li><em>Customer</em> - Regular customer <strong>(requires manager email)</strong></li>
+                                    <li><em>Manager</em> - Can approve/reject tickets from customers</li>
+                                </ul>
+                            </li>
+                            <li style="margin-top: 10px;"><strong>Agent</strong> - Can work on tickets
+                                <ul style="margin-left: 20px;">
+                                    <li><em>Normal</em> - Standard agent (consultant)</li>
+                                    <li><em>Delivery Lead</em> - Can assign tickets to agents</li>
+                                    <li><em>HOD</em> - Head of Department</li>
+                                    <li><em>Admin</em> - System administrator</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                        <p style="margin-top: 15px;"><strong>Important:</strong> To create a normal customer, you must first create a Manager in the system, then use that manager's email when creating the customer.</p>
+                    </div>
+                </div>
+            </main>
+
+            <footer class="footer">
+                <p>&copy; 2024 Ticket Management System</p>
+            </footer>
+        </div>
+    </div>
+
+    <script src="../../js/api.js"></script>
+    <script src="../../js/auth.js"></script>
+    <script src="../../js/utils.js"></script>
+
+    <script>
+        requireAuth();
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            loadUserProfile();
+        });
+
+        async function loadUserProfile() {
+            try {
+                const profile = await getCustomerProfile();
+                document.getElementById('user-name').textContent = profile.name || 'User';
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Update sub-roles based on selected role
+        function updateSubRoles() {
+            const role = document.getElementById('role').value;
+            const subRoleSelect = document.getElementById('sub_role');
+
+            // Clear existing options
+            subRoleSelect.innerHTML = '<option value="">Select Sub-Role</option>';
+
+            if (role === 'customer') {
+                subRoleSelect.innerHTML += `
+                    <option value="customer">Customer</option>
+                    <option value="manager">Manager</option>
+                `;
+            } else if (role === 'agent') {
+                subRoleSelect.innerHTML += `
+                    <option value="normal">Normal (Consultant)</option>
+                    <option value="delivery_lead">Delivery Lead</option>
+                    <option value="hod">HOD</option>
+                    <option value="admin">Admin</option>
+                `;
+            }
+
+            // Reset manager email field visibility
+            handleSubRoleChange();
+        }
+
+        // Handle sub-role change to show/hide manager email field
+        function handleSubRoleChange() {
+            const role = document.getElementById('role').value;
+            const subRole = document.getElementById('sub_role').value;
+            const managerEmailContainer = document.getElementById('manager-email-container');
+            const managerEmailInput = document.getElementById('manager_email');
+
+            // Show manager email field only for normal customers
+            if (role === 'customer' && subRole === 'customer') {
+                managerEmailContainer.classList.remove('hidden');
+                managerEmailInput.required = true;
+            } else {
+                managerEmailContainer.classList.add('hidden');
+                managerEmailInput.required = false;
+                managerEmailInput.value = ''; // Clear the value
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('add-user-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const role = document.getElementById('role').value;
+            const subRole = document.getElementById('sub_role').value;
+
+            if (!subRole) {
+                alert('Please select a sub-role');
+                return;
+            }
+
+            const userData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                organization: document.getElementById('organization').value,
+                department: document.getElementById('department').value,
+                account_name: document.getElementById('account_name').value,
+                role: role
+            };
+
+            // Add appropriate sub-role field
+            if (role === 'customer') {
+                userData.customer_type = subRole;
+
+                // Add manager email for normal customers
+                if (subRole === 'customer') {
+                    const managerEmail = document.getElementById('manager_email').value;
+                    if (!managerEmail) {
+                        alert('Please enter manager email for customer');
+                        return;
+                    }
+                    userData.manager_email = managerEmail;
+                }
+            } else if (role === 'agent') {
+                userData.agent_type = subRole;
+            }
+
+            try {
+                await addUser(userData);
+                showAlert('User created successfully! Temporary password sent to email.', 'success');
+
+                // Reset form
+                document.getElementById('add-user-form').reset();
+                document.getElementById('sub_role').innerHTML = '<option value="">Select Sub-Role</option>';
+                handleSubRoleChange(); // Reset visibility
+
+            } catch (error) {
+                showAlert('Error creating user: ' + error.message, 'danger');
+            }
+        });
+    </script>
+</body>
+</html>

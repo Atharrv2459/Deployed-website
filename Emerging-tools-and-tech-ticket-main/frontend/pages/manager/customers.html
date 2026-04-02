@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Customers - Manager</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- ========== SIDEBAR ========== -->
+        <nav class="sidebar">
+            <div class="sidebar-brand">
+                <h2>🎫 Ticket System</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html">📊 Dashboard</a></li>
+                <li><a href="pending-tickets.html">⏳ Pending Approval</a></li>
+                <li><a href="approved-tickets.html">✅ Approved Tickets</a></li>
+                <li><a href="rejected-tickets.html">❌ Rejected Tickets</a></li>
+                <li><a href="customers.html" class="active">👥 Manage Customers</a></li>
+                <li><a href="#" onclick="logout()">🚪 Logout</a></li>
+            </ul>
+        </nav>
+
+        <!-- ========== MAIN CONTENT ========== -->
+        <div class="main-content">
+            <header class="header">
+                <h1>Manage Customers</h1>
+                <div class="user-info">
+                    <span id="user-name">Loading...</span>
+                    <span class="role-badge">Manager</span>
+                </div>
+            </header>
+
+            <main class="content">
+                <div id="alert-container"></div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Customers Under Your Account</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container" id="customers-container">
+                            <div class="loading"><div class="spinner"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <footer class="footer">
+                <p>&copy; 2024 Ticket Management System</p>
+            </footer>
+        </div>
+    </div>
+
+    <script src="../../js/api.js"></script>
+    <script src="../../js/auth.js"></script>
+    <script src="../../js/utils.js"></script>
+
+    <script>
+        requireAuth();
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            loadUserProfile();
+            loadCustomers();
+        });
+
+        async function loadUserProfile() {
+            try {
+                const profile = await getCustomerProfile();
+                document.getElementById('user-name').textContent = profile.name || 'User';
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function loadCustomers() {
+            try {
+                const response = await getManagerCustomers();
+                const customers = response.customers || response || [];
+                renderCustomers(customers);
+            } catch (error) {
+                document.getElementById('customers-container').innerHTML =
+                    '<p class="text-center">Error loading customers.</p>';
+            }
+        }
+
+        function renderCustomers(customers) {
+            const container = document.getElementById('customers-container');
+
+            if (!customers || customers.length === 0) {
+                container.innerHTML = '<p class="text-center">No customers found.</p>';
+                return;
+            }
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Department</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            customers.forEach(customer => {
+                html += `
+                    <tr>
+                        <td>#${customer.id}</td>
+                        <td>${escapeHtml(customer.name)}</td>
+                        <td>${escapeHtml(customer.email)}</td>
+                        <td>${escapeHtml(customer.phone) || '-'}</td>
+                        <td>${escapeHtml(customer.department) || '-'}</td>
+                        <td><span class="badge ${customer.is_active ? 'badge-success' : 'badge-danger'}">${customer.is_active ? 'Active' : 'Inactive'}</span></td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
