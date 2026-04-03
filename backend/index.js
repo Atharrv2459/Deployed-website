@@ -4,6 +4,7 @@ dotenv.config({ quiet: true });  // Don't warn if .env missing (use Railway env 
 import express from 'express';
 import cors from 'cors';
 import { testDbConnection } from './config/db.js';
+import { initSchema } from './config/initSchema.js';
 import adminRoutes from './routes/admin_routes.js';
 import authRoutes from './routes/auth_routes.js';
 import { bootstrapAdmin } from './config/bootstrapAdmin.js';
@@ -19,6 +20,8 @@ app.use(cors());
 app.use(express.json());
 
 await testDbConnection();
+await initSchema();
+await bootstrapAdmin();
 
 // Health check endpoint for Render
 app.get('/api/health', (req, res) => {
