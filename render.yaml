@@ -45,4 +45,4 @@ services:
     plan: free
     envVars:
       - key: BACKEND_URL
-        value: https://ticket-backend.onrender.com  # Render public URL
+        value: https://ticket-backend-yswy.onrender.com  # Render public URL
